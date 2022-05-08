@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:random_number/component/number_row.dart';
 import 'package:random_number/constant/color.dart';
 
-
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  final int maxNumber;
+
+  const SettingsScreen({required this.maxNumber, Key? key}) : super(key: key);
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -11,6 +13,12 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   double maxNumber = 1000;
+
+  @override
+  void initState() {
+    super.initState();
+    maxNumber = widget.maxNumber.toDouble();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,44 +30,76 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: Row(
-                  children: maxNumber.toInt()
-                      .toString()
-                      .split('')
-                      .map(
-                        (x) => Image.asset(
-                          'asset/img/$x.png',
-                          height: 70.0,
-                          width: 50.0,
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-              Slider(
-                value: maxNumber,
-                min: 1000,
-                max: 100000,
-                onChanged: (double val) {
-                  setState(() {
-                    maxNumber = val;
-                  });
-                },
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(maxNumber.toInt());
-                },
-                child: Text('저장'),
-                style: ElevatedButton.styleFrom(
-                  primary: RED_COLOR,
-                ),
+              _Body(maxNumber: maxNumber),
+              _Footer(
+                maxNumber: maxNumber,
+                onSliderChanged: onSliderChanged,
+                onButtonPressed: onButtonPressed,
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void onButtonPressed() {
+    Navigator.of(context).pop(maxNumber.toInt());
+  }
+
+  void onSliderChanged(double val) {
+    setState(() {
+      maxNumber = val;
+    });
+  }
+}
+
+class _Body extends StatelessWidget {
+  final double maxNumber;
+
+  const _Body({required this.maxNumber, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: NumberRow(
+        number: maxNumber.toInt(),
+      ),
+    );
+  }
+}
+
+class _Footer extends StatelessWidget {
+  final double maxNumber;
+  final ValueChanged<double>? onSliderChanged;
+  final VoidCallback onButtonPressed;
+
+  const _Footer(
+      {required this.maxNumber,
+      required this.onSliderChanged,
+      required this.onButtonPressed,
+      Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Slider(
+          value: maxNumber,
+          min: 1000,
+          max: 100000,
+          onChanged: onSliderChanged,
+        ),
+        ElevatedButton(
+          onPressed: onButtonPressed,
+          child: Text('저장'),
+          style: ElevatedButton.styleFrom(
+            primary: RED_COLOR,
+          ),
+        ),
+      ],
     );
   }
 }
